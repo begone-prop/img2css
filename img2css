@@ -1,14 +1,14 @@
 #!/bin/bash
 
 boxSize=1
-height=$(mediainfo "$1" | grep Height | sed 's/ //g; s/[[:alpha:]]//g; s/://g')
+width=$(mediainfo "$1" | grep Width | sed 's/ //g; s/[[:alpha:]]//g; s/://g')
 outName=$(basename "${1%.*}")
 
 function index() {
     echo "<link href='./${outName}.css' rel='stylesheet'>"
     printf "<body>\n<div class='row'>\n"
     sed -E 's|#(..)(..)(..)|    <div class="color\1\2\3"></div>|' |
-        awk -v h="$height" '1;!(NR%h) {print "</div>\n<div class=\"row\">\n"}'
+        awk -v h="$width" '1;!(NR%h) {print "</div>\n<div class=\"row\">\n"}'
     printf "</body>\n"
 }
 
