@@ -1,27 +1,30 @@
 #!/bin/bash
 
 boxSize=1
-image="${1:-media/pokeball.jpg}"
-#image=$1
+image=$1
 
 width=$(mediainfo "$image" | grep Width | sed 's/ //g; s/[[:alpha:]]//g; s/://g')
 outName=$(basename "${image%.*}")
 
-function index() {
+function genDoc() {
     echo "<link href='./${outName}.css' rel='stylesheet'>"
-    printf "<body>\n<div class='row'>\n"
+    echo -e "<body>\n<div class='row'>"
     sed -E 's|#(..)(..)(..)|<div class="color\1\2\3"></div>|' |
         awk -v w="$width" '1;!(NR%w) {print "</div>\n<div class=\"row\">\n"}' |
         grep -v '^$' | uniq -c |
-        sed -E "s/^\s+//g; s/^1\s//g; s/([[:digit:]]*) (<div) (class.*)/\2 style='width: \1px' \3/g"
-    printf "</body>\n"
+        sed -E "s/^\s+//g; s/^1\s//g;\
+            s/([[:digit:]]*) (<div) (class.*)/\2 style='width: \1px' \3/g"
+    echo "</body>"
 }
 
-function style() {
+function genStyle() {
     rowClass=".row {display: flex; flex-direction: row;}"
     pixelClass=".row > div {width: ${boxSize}px; height:${boxSize}px;}"
-    printf "%s\n%s\n" "$rowClass" "$pixelClass"
-    sort -u | sed -E 's/#(..)(..)(..)/.color\1\2\3 {background-color: #\1\2\3;}/g'
+    echo -e "$rowClass\n$pixelClass"
+    sort -u |
+        sed -E 's/#(..)(..)(..)/.color\1\2\3 {background-color: #\1\2\3;}/g'
 }
 
-convert "$image" txt: | grep -o '#[A-F0-9]\{6\}' | tee >(index > "$outName".html) >(style > "$outName".css) >/dev/null
+convert "$image" txt: | grep -o '#[A-F0-9]\{6\}' | tee \
+    >(genDoc > "$outName".html) \
+    >(genStyle > "$outName".css) >/dev/null
