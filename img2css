@@ -1,5 +1,6 @@
 #!/bin/bash
 
+[ -z $1 ] && echo "No image provided. Exiting..." && exit 1
 boxSize=1
 image=$1
 
