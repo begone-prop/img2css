@@ -1,14 +1,19 @@
 #!/bin/bash
 
 boxSize=1
-width=$(mediainfo "$1" | grep Width | sed 's/ //g; s/[[:alpha:]]//g; s/://g')
-outName=$(basename "${1%.*}")
+image="${1:-media/pokeball.jpg}"
+#image=$1
+
+width=$(mediainfo "$image" | grep Width | sed 's/ //g; s/[[:alpha:]]//g; s/://g')
+outName=$(basename "${image%.*}")
 
 function index() {
     echo "<link href='./${outName}.css' rel='stylesheet'>"
     printf "<body>\n<div class='row'>\n"
-    sed -E 's|#(..)(..)(..)|    <div class="color\1\2\3"></div>|' |
-        awk -v h="$width" '1;!(NR%h) {print "</div>\n<div class=\"row\">\n"}'
+    sed -E 's|#(..)(..)(..)|<div class="color\1\2\3"></div>|' |
+        awk -v w="$width" '1;!(NR%w) {print "</div>\n<div class=\"row\">\n"}' |
+        grep -v '^$' | uniq -c |
+        sed -E "s/^\s+//g; s/^1\s//g; s/([[:digit:]]*) (<div) (class.*)/\2 style='width: \1px' \3/g"
     printf "</body>\n"
 }
 
@@ -19,4 +24,4 @@ function style() {
     sort -u | sed -E 's/#(..)(..)(..)/.color\1\2\3 {background-color: #\1\2\3;}/g'
 }
 
-convert "$1" txt: | grep -o '#[A-F0-9]\{6\}' | tee >(index > "$outName".html) >(style > "$outName".css) >/dev/null
+convert "$image" txt: | grep -o '#[A-F0-9]\{6\}' | tee >(index > "$outName".html) >(style > "$outName".css) >/dev/null
