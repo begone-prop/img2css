@@ -17,7 +17,7 @@ color of the input image represented in hex.
 These color classes are used to color the appropriate `<divs>`'s.
 
 ## Demo
-![Example](./media/output.gif)
+![Example](./media/demo.gif)
 
 ## Usage
 ```
