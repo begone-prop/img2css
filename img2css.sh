@@ -5,15 +5,19 @@ IFS=$'\n\t'
 
 boxSize=1
 image="${1:-}"
-test -f "$image" || echo "${image}: input file not an image" && exit 1
+
+test -f "$image" || {
+    echo "${image}: input file not an image"
+    exit 1
+}
 
 width=$(identify -format '%w\n' "$image")
-outName=$(basename "${image%.*}")
+outName=$(basename "${image%.*}" | tr -d "'" | tr -d '"')
 
 function genDoc() {
     echo "<link href='./${outName}.css' rel='stylesheet'>"
     echo -e "<body>\n<div class='row'>"
-    sed -E 's|#(..)(..)(..)|<div class="color\1\2\3"></div>|' |
+    sed -E 's|#(..)(..)(..)|<div class="x\1\2\3"></div>|' |
         awk -v w="$width" '1;!(NR%w) {print "</div>\n<div class=\"row\">\n"}' |
         grep -v '^$' | uniq -c |
         sed -E "s/^\s+//g; s/^1\s//g;\
@@ -26,7 +30,7 @@ function genStyle() {
     pixelClass=".row > div {width: ${boxSize}px; height:${boxSize}px;}"
     echo -e "$rowClass\n$pixelClass"
     sort -u |
-        sed -E 's/#(..)(..)(..)/.color\1\2\3 {background-color: #\1\2\3;}/g'
+        sed -E 's/#(..)(..)(..)/.x\1\2\3 {background-color: #\1\2\3;}/g'
 }
 
 convert "$image" txt: | grep -o '#[A-F0-9]\{6\}' | tee \
