@@ -1,10 +1,13 @@
 #!/bin/bash
 
-[ -z $1 ] && echo "No image provided. Exiting..." && exit 1
-boxSize=1
-image=$1
+set -euo pipefail
+IFS=$'\n\t'
 
-width=$(mediainfo "$image" | grep Width | sed 's/ //g; s/[[:alpha:]]//g; s/://g')
+boxSize=1
+image="${1:-}"
+test -f "$image" || echo "${image}: input file not an image" && exit 1
+
+width=$(identify -format '%w\n' "$image")
 outName=$(basename "${image%.*}")
 
 function genDoc() {
