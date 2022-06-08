@@ -21,12 +21,11 @@ These color classes are used to color the appropriate `<divs>`'s.
 
 ## Usage
 ```
-git clone <link>
+git clone https://github.com/begone-prop/img2css.git
 cd imag2css
 ./img2css yourImage.png
 ```
 
 ## Dependencies
 
-- **mediainfo**
 - **imagemagick**
